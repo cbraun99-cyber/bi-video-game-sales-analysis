@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
 ![PowerBI](https://img.shields.io/badge/analytics-Power_BI-yellow.svg)
 ![BI](https://img.shields.io/badge/BI-OLAP_Analysis-orange.svg)
-![SQLite](https://img.shields.io/badge/database-SQLite-green.svg)
+![SQL Server](https://img.shields.io/badge/database-SQL_Server-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## 🚀 Quick Start
@@ -21,7 +21,7 @@ uv run pre-commit install
 # Process data and build analytics
 uv run python src/analytics_project/data_prep.py
 uv run python src/analytics_project/etl_to_dw.py
-# Open reports/video_game_sales.pbix in Power BI Desktop
+# Open data/dw/video_game_sales_analysis.pbix in Power BI Desktop
 ```
 
 ## 📊 Project Overview
@@ -30,9 +30,9 @@ This BI project analyzes historical video game sales data to provide strategic i
 
 ---
 
-## 🎯 Current Status: DATA PIPELINE COMPLETE ✅
+## 🎯 Current Status: DATA WAREHOUSE & POWER BI FOUNDATION COMPLETE ✅
 
-**Data Processing Pipeline**: ✅ **Fully Implemented and Tested**
+**Data Pipeline & Power BI Setup**: ✅ **Fully Implemented and Connected**
 
 ### ✅ Completed Work:
 
@@ -42,17 +42,27 @@ This BI project analyzes historical video game sales data to provide strategic i
    - Creates derived features (decades, success categories, regional percentages)
    - Exports cleaned data to `data/prepared/vgsales_cleaned.csv`
 
-2. **Data Warehouse ETL** (`src/analytics_project/etl_to_dw.py`) 
-   - Implements star schema in SQLite database
+2. **SQL Server Data Warehouse ETL** (`src/analytics_project/etl_to_dw.py`) 
+   - Implements star schema in SQL Server database
    - Creates dimension tables: platform_dim, genre_dim, publisher_dim, time_dim, game_dim
    - Creates fact table: game_sales_fact with sales metrics
    - Builds proper indexes and relationships for OLAP operations
-   - Output: `data/dw/video_games_dw.sqlite`
+   - Database: `VideoGamesDW` on SQL Server
+
+3. **System DSN Configuration** 
+   - DSN Name: `videogames`
+   - Connected to SQL Server VideoGamesDW database
+   - Tested and verified connection
+
+4. **Power BI Foundation** (`data/dw/video_game_sales_analysis.pbix`)
+   - ODBC connection to SQL Server via "videogames" DSN
+   - Data model with star schema relationships established
+   - Ready for dashboard development
 
 ### 🎯 Ready for Next Phase:
-- **Power BI Dashboard Development** - Connect to SQLite database and build interactive visuals
-- **OLAP Analysis Implementation** - Slicing, dicing, drilldown operations
+- **Power BI Dashboard Development** - Build interactive visuals and OLAP operations
 - **Business Insights Generation** - Strategic recommendations based on data patterns
+- **Project Documentation** - Create comprehensive project documentation
 
 ---
 
@@ -77,8 +87,8 @@ To identify the most successful video game genres, platforms, and publishers thr
 ## 3. Tools Used
 
 - **Power BI Desktop**: Primary BI tool for OLAP operations and interactive dashboards
+- **SQL Server Express**: Database management system with ODBC connectivity
 - **Python/pandas**: Data validation, cleaning, and preprocessing
-- **SQLite**: Star schema data warehouse storage
 - **GitHub Actions**: Automated documentation deployment
 - **MkDocs**: Project documentation site
 
@@ -90,9 +100,10 @@ To identify the most successful video game genres, platforms, and publishers thr
 Raw Data (vgsales.csv) 
     → Data Preparation (data_prep.py)
     → Cleaned Data (vgsales_cleaned.csv) 
-    → Data Warehouse ETL (etl_to_dw.py)
-    → SQLite Star Schema (video_games_dw.sqlite)
-    → Power BI Dashboard
+    → SQL Server ETL (etl_to_dw.py)
+    → SQL Server Database (VideoGamesDW)
+    → System DSN (videogames)
+    → Power BI Dashboard (video_game_sales_analysis.pbix)
 ```
 
 ### Dimensions & Metrics
@@ -109,7 +120,7 @@ Raw Data (vgsales.csv)
 ### Analytical Approach
 1. **Data Preparation**: Clean and validate raw game sales data ✅
 2. **Star Schema**: Implement data warehouse with fact and dimension tables ✅
-3. **Power BI Modeling**: Create relationships and calculated measures 🚧
+3. **Power BI Modeling**: Create relationships and calculated measures ✅
 4. **Visual Exploration**: Interactive analysis using OLAP operations 🚧
 5. **Insight Generation**: Identify patterns and strategic opportunities 🚧
 
@@ -135,50 +146,58 @@ game_sales_fact (Fact Table)
 - **time_dim**: Time analysis with decade and era groupings
 - **game_dim**: Game details and success categories
 
-## 6. Power BI Connection Guide
+## 6. System DSN & Power BI Connection Guide
 
-### Direct SQLite Connection (Recommended):
+### SQL Server Express Installation
 
-```
-1. Open Power BI Desktop
-2. Get Data → More... → Other → SQLite database
-3. Navigate to: data/dw/video_games_dw.sqlite
-4. Select all dimension and fact tables
-5. Create relationships:
-   - game_sales_fact[platform_id] → platform_dim[platform_id]
-   - game_sales_fact[genre_id] → genre_dim[genre_id]
-   - game_sales_fact[publisher_id] → publisher_dim[publisher_id]
-   - game_sales_fact[time_id] → time_dim[time_id]
-```
+1. **Download SQL Server Express** from [Microsoft's website](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
+2. **Run installer** with these settings:
+   - Feature Selection: Database Engine Services
+   - Instance Configuration: Default instance (or named instance like `SQLEXPRESS`)
+   - Authentication Mode: Mixed Mode (set a strong 'sa' password)
 
-## 7. Expected Results
+### System DSN Setup
 
-### Key Findings (Based on Initial Analysis)
+1. **Open ODBC Data Source Administrator** (64-bit):
+   - Press `Windows Key + R`, type `odbcad32.exe`, press Enter
+   - Or search "ODBC Data Sources" in Windows Start Menu
 
-**Genre Performance**:
-- Action and Sports genres dominate global sales volume
-- Role-Playing games show exceptional performance in Japanese market
-- Shooter games demonstrate strong growth in Western markets
+2. **Create System DSN**:
+   - Go to "System DSN" tab → Click "Add"
+   - Select "ODBC Driver 17 for SQL Server" → Click "Finish"
 
-**Platform Analysis**:
-- Nintendo platforms (Wii, DS) show unique genre preferences vs. Sony/Microsoft
-- Platform lifecycle patterns reveal optimal timing for game releases
-- Multi-platform vs. exclusive title performance comparisons
+3. **Configure DSN**:
+   - Name: `videogames`
+   - Description: Video Game Sales Data Warehouse
+   - Server: `localhost` (or `localhost\SQLEXPRESS` for named instance)
 
-**Publisher Insights**:
-- Nintendo demonstrates highest efficiency (sales per game)
-- Certain publishers dominate specific genre categories
-- Market share concentration among top publishers
+4. **Authentication**:
+   - Choose "With SQL Server authentication"
+   - Login ID: `sa` (or your preferred username)
+   - Password: [Your SQL Server password]
 
-### Visualizations Planned
+5. **Database Configuration**:
+   - Check "Change the default database to:"
+   - Select: `VideoGamesDW`
+   - Click "Next" → "Finish"
 
-- **Stacked Bar Charts**: Regional sales breakdown by genre
-- **Line Charts**: Platform sales trends over time
-- **Matrix Heat Maps**: Publisher performance across platforms
-- **Treemaps**: Market share visualization by publisher
-- **Scatter Plots**: Sales volume vs. release year analysis
+6. **Test Connection**:
+   - Click "Test Data Source"
+   - Should see "TESTS COMPLETED SUCCESSFULLY!"
 
-## 8. Current File Structure
+### Power BI Connection
+
+1. **Open Power BI Desktop**
+2. **Get Data** → **More...** → **ODBC** → **Connect**
+3. **Select Data Source Name**: Choose "videogames" from dropdown
+4. **Select Tables**: Choose all dimension and fact tables
+5. **Create Relationships**:
+   - `game_sales_fact[platform_id]` → `platform_dim[platform_id]`
+   - `game_sales_fact[genre_id]` → `genre_dim[genre_id]`
+   - `game_sales_fact[publisher_id]` → `publisher_dim[publisher_id]`
+   - `game_sales_fact[time_id]` → `time_dim[time_id]`
+
+## 7. Current File Structure
 
 ```
 bi-video-game-sales-analysis/
@@ -188,14 +207,13 @@ bi-video-game-sales-analysis/
 │   ├── prepared/
 │   │   └── vgsales_cleaned.csv         # Cleaned data from data_prep.py ✅
 │   └── dw/
-│       └── video_games_dw.sqlite       # SQLite data warehouse ✅
+│       ├── video_games_dw.sqlite       # SQLite database (backup/legacy)
+│       └── video_game_sales_analysis.pbix  # Power BI dashboard 🚧
 ├── src/
 │   └── analytics_project/
 │       ├── data_prep.py               # Data preparation script ✅
-│       ├── etl_to_dw.py               # Data warehouse ETL ✅
+│       ├── etl_to_dw.py               # SQL Server ETL script ✅
 │       └── utils_logger.py            # Logging configuration
-├── reports/
-│   └── video_game_sales.pbix          # Power BI dashboard 🚧
 ├── docs/
 │   └── images/                        # Visualization exports
 ├── .github/workflows/
@@ -254,13 +272,14 @@ uv run python src/analytics_project/etl_to_dw.py
 ```
 
 ### 3.2 Power BI Analysis
-1. Open `reports/video_game_sales.pbix` in Power BI Desktop
-2. Connect to `data/dw/video_games_dw.sqlite` using SQLite connector
-3. Create relationships between fact and dimension tables
-4. Build OLAP operations:
+1. Open `data/dw/video_game_sales_analysis.pbix` in Power BI Desktop
+2. **Data Source**: Connected via ODBC System DSN "videogames" to SQL Server
+3. **Data Model**: Star schema with proper relationships between fact and dimension tables
+4. **OLAP Operations**:
    - **Slicing**: Use year and genre filters
-   - **Dicing**: Analyze platform-genre combinations
-   - **Drilldown**: Explore publisher hierarchies
+   - **Dicing**: Analyze platform-genre combinations  
+   - **Drilldown**: Explore publisher → platform → game hierarchies
+   - **Roll-up**: Aggregate regional sales to global totals
 
 ### 3.3 Quality Assurance
 
@@ -287,9 +306,9 @@ uv run pytest
 - Check file name is exactly `vgsales.csv`
 
 **Power BI Connection Issues:**
-- Ensure SQLite database is built before opening Power BI file
-- Verify data source paths in Power BI connection settings
-- Use direct SQLite file connection (not DSN)
+- Ensure SQL Server database is built before opening Power BI file
+- Verify System DSN "videogames" is properly configured
+- Test connection in ODBC Data Source Administrator first
 
 **Module Import Errors:**
 ```bash
@@ -301,19 +320,35 @@ uv sync --extra dev --extra docs --upgrade
 uv run pre-commit run --all-files
 ```
 
+### System DSN Issues
+
+**"Data source name not found"**:
+- Verify ODBC Data Source Administrator is 64-bit version
+- Check DSN name is exactly "videogames"
+- Ensure SQL Server is running
+
+**Authentication Failed**:
+- Verify SQL Server authentication mode is enabled
+- Check username/password in DSN configuration
+- Test connection in ODBC administrator first
+
+**Database Not Found**:
+- Run etl_to_dw.py to create VideoGamesDW database
+- Verify default database is set to VideoGamesDW in DSN
+
 ### Data-Specific Issues
 
-**Missing Regional Sales Data:**
+**Missing Regional Sales Data**:
 - Some older games may have incomplete regional breakdown
 - Analysis focuses on relative patterns rather than absolute values
 
-**Platform Name Variations:**
+**Platform Name Variations**:
 - Dataset uses consistent platform naming conventions
 - Legacy platforms grouped appropriately for analysis
 
 ### Performance Tips
 
-**Large Dataset Handling:**
+**Large Dataset Handling**:
 - Dataset is optimized for efficient querying
 - Power BI aggregations used for improved performance
 - Consider data model simplification for very large future expansions
@@ -324,9 +359,11 @@ uv run pre-commit run --all-files
 
 - [x] Complete data validation and quality checks ✅
 - [x] Build data preparation pipeline ✅  
-- [x] Implement star schema data warehouse ✅
-- [ ] Build initial Power BI dashboard with core visuals 🚧
-- [ ] Implement advanced OLAP operations 🚧
+- [x] Implement SQL Server data warehouse ✅
+- [x] Set up System DSN ("videogames") ✅
+- [x] Create Power BI file with ODBC connection ✅
+- [ ] Build core visualizations and dashboard layout 🚧
+- [ ] Implement advanced OLAP operations and DAX measures 🚧
 - [ ] Create business insight documentation 🚧
 - [ ] Deploy project documentation site 🚧
 
@@ -341,10 +378,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🙏 Acknowledgments
 
 - Kaggle for the Video Game Sales dataset
-- Power BI community for OLAP operation guidance
+- Power BI community for OLAP operation guidance  
 - Graduate program instructors for project framework
 
 ---
 
 *Last updated: November 24, 2025*
-*Status: Data Pipeline Complete - Ready for Power BI Development*
+*Status: Data Warehouse & Power BI Foundation Complete - Ready for Dashboard Development*
