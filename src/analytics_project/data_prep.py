@@ -1,4 +1,4 @@
-# src/data_preparation.py
+# src/analytics_project/data_prep.py
 """
 Data Preparation Script for Video Game Sales Analysis
 
@@ -21,6 +21,7 @@ import numpy as np
 import logging
 from pathlib import Path
 import sys
+import os
 
 # Add src to path for module imports
 src_path = Path(__file__).parent
@@ -50,18 +51,26 @@ except ImportError:
 class VideoGameDataPreparer:
     """Handles data preparation and cleaning for video game sales dataset."""
     
-    def __init__(self, data_dir="../data"):
+    def __init__(self, data_dir=None):
         """
         Initialize the data preparer.
         
         Args:
-            data_dir (str): Relative path to data directory
+            data_dir (str): Relative path to data directory. If None, uses project root.
         """
-        self.data_dir = Path(data_dir)
+        # Get the project root directory (where the script is run from)
+        if data_dir is None:
+            # Go up two levels from src/analytics_project to get to project root
+            self.project_root = Path(__file__).parent.parent.parent
+        else:
+            self.project_root = Path(data_dir)
+        
+        self.data_dir = self.project_root / "data"
         self.raw_data_path = self.data_dir / "raw" / "vgsales.csv"
         self.prepared_data_path = self.data_dir / "prepared" / "vgsales_cleaned.csv"
         
         # Ensure directories exist
+        self.raw_data_path.parent.mkdir(parents=True, exist_ok=True)
         self.prepared_data_path.parent.mkdir(parents=True, exist_ok=True)
         
         # Setup logging
@@ -86,9 +95,17 @@ class VideoGameDataPreparer:
             FileNotFoundError: If raw data file doesn't exist
         """
         self.logger.info(f"Loading raw data from: {self.raw_data_path}")
+        self.logger.info(f"Current working directory: {os.getcwd()}")
+        self.logger.info(f"Absolute data path: {self.raw_data_path.absolute()}")
         
         if not self.raw_data_path.exists():
-            raise FileNotFoundError(f"Raw data file not found: {self.raw_data_path}")
+            # Create a helpful error message
+            self.logger.error(f"Raw data file not found at: {self.raw_data_path.absolute()}")
+            self.logger.error("Please ensure:")
+            self.logger.error("1. The vgsales.csv file is downloaded from Kaggle")
+            self.logger.error("2. The file is placed in: data/raw/vgsales.csv")
+            self.logger.error("3. The directory structure exists")
+            raise FileNotFoundError(f"Raw data file not found: {self.raw_data_path.absolute()}")
         
         try:
             df = pd.read_csv(self.raw_data_path)
@@ -98,6 +115,7 @@ class VideoGameDataPreparer:
             self.logger.error(f"Error loading raw data: {e}")
             raise
     
+    # ... (rest of the methods remain the same - validate_data_structure, handle_missing_values, etc.)
     def validate_data_structure(self, df: pd.DataFrame) -> bool:
         """
         Validate that the dataset has expected structure and columns.
